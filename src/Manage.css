@@ -1,0 +1,88 @@
+.manage-shell { min-height: 100svh; padding: 0 clamp(1.1rem, 5vw, 5.5rem) 5rem; color: var(--ink); background: #fff; }
+.manage-back { min-height: 44px; display: inline-flex; align-items: center; color: var(--muted); font-size: 0.84rem; }
+.login-panel { width: min(100%, 440px); margin: clamp(4rem, 14vh, 9rem) auto; padding: clamp(1.5rem, 4vw, 3rem); border: 1px solid var(--line); background: var(--lilac-wash); }
+.login-panel h1, .manage-title h1 { margin: 0; font-size: clamp(2.8rem, 7vw, 6.4rem); line-height: 0.95; letter-spacing: -0.08em; font-weight: 500; }
+.manage-copy { margin: 1.25rem 0 2.3rem; color: var(--muted); line-height: 1.65; }
+.manage-shell label { display: block; margin: 1.15rem 0 0.45rem; font-size: 0.83rem; font-weight: 600; }
+.manage-shell label span { color: var(--muted); font-size: 0.75rem; font-weight: 400; }
+.manage-shell input:not([type=checkbox]), .manage-shell select, .manage-shell textarea { width: 100%; min-height: 48px; padding: 0.75rem 0.85rem; border: 1px solid #c9c1d1; border-radius: 0; color: var(--ink); background: #fff; font: inherit; }
+.manage-shell textarea { resize: vertical; }
+.cover-upload { padding: 1rem; border: 1px solid #e5deec; background: #faf8fc; }
+.manage-shell .paste-zone { position: relative; min-height: 170px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.45rem; border: 1.5px dashed #a998bb; background: #fff; text-align: center; cursor: text; }
+.manage-shell .paste-zone:focus-visible { outline: 3px solid var(--lilac-strong); outline-offset: 3px; }
+.paste-zone strong { color: var(--ink); font-size: 0.92rem; }
+.paste-zone > span:not(.upload-symbol) { color: var(--muted); font-size: 0.76rem; }
+.upload-symbol { width: 34px; height: 34px; display: grid; place-items: center; border: 1px solid #d4c9e0; border-radius: 50%; color: var(--lilac-strong); font-size: 1.3rem; }
+.paste-capture { position: absolute; inset: 0; width: 100% !important; height: 100%; opacity: 0; cursor: text; }
+.file-picker { min-height: 44px; width: fit-content; display: inline-flex !important; align-items: center; justify-content: center; margin: 0.8rem 0 0 !important; padding: 0.6rem 0.9rem; border: 1px solid var(--lilac-strong); color: var(--lilac-strong); cursor: pointer; }
+.file-picker:hover { color: white; background: var(--lilac-strong); }
+.native-file-input { position: absolute; width: 1px !important; height: 1px; padding: 0 !important; overflow: hidden; clip: rect(0, 0, 0, 0); clip-path: inset(50%); white-space: nowrap; }
+.native-file-input:focus-visible + * { outline: 3px solid var(--lilac-strong); outline-offset: 3px; }
+.asset-upload { padding: 0.9rem; border: 1px solid #e5deec; background: #faf8fc; }
+.selected-file { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 0.5rem 1rem; margin-top: 0.75rem; color: var(--muted); font-size: 0.75rem; }
+.selected-file .cover-preview { grid-column: 1 / -1; margin: 0; }
+.file-remove { min-height: 40px; padding: 0.5rem 0.7rem; border: 1px solid #c9c1d1; color: var(--ink); background: white; cursor: pointer; }
+.field-help { margin: 0.45rem 0; color: var(--muted); font-size: 0.75rem; line-height: 1.5; }
+.manage-shell input:focus-visible, .manage-shell select:focus-visible, .manage-shell textarea:focus-visible, .manage-shell button:focus-visible { outline: 3px solid var(--lilac-strong); outline-offset: 3px; }
+.manage-button, .manage-secondary, .manage-delete { min-height: 46px; padding: 0.7rem 1.15rem; border: 1px solid var(--ink); font: inherit; font-size: 0.84rem; cursor: pointer; }
+.manage-button { color: white; background: var(--ink); }
+.manage-button:hover { background: var(--lilac-strong); border-color: var(--lilac-strong); }
+.manage-button:disabled { opacity: 0.6; cursor: wait; }
+.manage-secondary { color: var(--ink); background: white; border-color: #c9c1d1; }
+.manage-secondary:hover { border-color: var(--lilac-strong); }
+.manage-delete { color: #793a3a; background: transparent; border-color: #c59b9b; }
+.manage-notice { color: #55376f; font-size: 0.84rem; line-height: 1.5; }
+.manage-dashboard { max-width: 1600px; margin-inline: auto; }
+.manage-top { min-height: 80px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--line); }
+.manage-top > div { display: flex; align-items: center; gap: 1.8rem; }
+.manage-top .eyebrow { margin: 0; }
+.manage-title { display: flex; align-items: end; justify-content: space-between; gap: 2rem; padding: clamp(3rem, 8vw, 7rem) 0 clamp(2rem, 4vw, 3.4rem); }
+.manage-title .eyebrow { margin-bottom: 1rem; }
+.manage-title h1 { max-width: 12ch; }
+.manage-title > span { padding-bottom: 0.45rem; color: var(--muted); font-size: 0.8rem; }
+.manage-columns { display: grid; grid-template-columns: minmax(0, 1.12fr) minmax(300px, 0.88fr); align-items: start; gap: clamp(2rem, 6vw, 6rem); }
+.project-form { min-width: 0; }
+.form-heading { margin-bottom: 1.6rem; }
+.form-heading h2, .manage-columns h2 { margin: 0.55rem 0 0.4rem; font-size: 1.55rem; font-weight: 500; letter-spacing: -0.055em; }
+.form-heading p { margin: 0; color: var(--muted); font-size: 0.83rem; line-height: 1.55; }
+.form-step { color: var(--lilac-strong); font-size: 0.65rem; font-weight: 700; letter-spacing: 0.1em; }
+.project-stepper { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); margin: 1.7rem 0 2rem; padding: 0 0 1rem; list-style: none; border-bottom: 1px solid var(--line); }
+.project-stepper li { display: flex; align-items: center; gap: 0.6rem; color: #625b69; font-size: 0.74rem; }
+.step-number { width: 26px; height: 26px; flex: none; display: grid; place-items: center; border: 1px solid #8f849b; border-radius: 50%; font-size: 0.7rem; }
+.project-stepper .is-current { color: var(--ink); font-weight: 700; }
+.project-stepper .is-current .step-number, .project-stepper .is-complete .step-number { color: white; background: var(--lilac-strong); border-color: var(--lilac-strong); }
+.project-review { padding: 1.5rem; background: var(--lilac-wash); }
+.project-review h3 { margin: 0.5rem 0 1.5rem; font-size: 1.4rem; font-weight: 500; }
+.project-review p:not(.form-step) { padding: 0.75rem 0; margin: 0; border-top: 1px solid var(--line); font-size: 0.85rem; }
+.form-fields { display: grid; grid-template-columns: 1fr 1fr; column-gap: 1.2rem; }
+.form-fields label:first-child, .form-fields #project-title, .form-fields label[for=project-description], .form-fields #project-description { grid-column: 1 / -1; }
+.media-fields { margin-top: 1.8rem; padding: clamp(1rem, 2.5vw, 1.6rem); background: var(--lilac-wash); }
+.media-fields .form-heading { margin-bottom: 0.7rem; }
+.media-fields label { margin-top: 1rem; }
+.cover-preview { display: block; width: 100%; max-height: 260px; margin-top: 0.9rem; object-fit: cover; }
+.publish-check { display: flex !important; align-items: center; gap: 0.6rem; width: fit-content; margin: 1.35rem 0 !important; }
+.publish-check input { width: 18px; height: 18px; accent-color: var(--lilac-strong); }
+.form-actions, .row-actions { display: flex; flex-wrap: wrap; gap: 0.65rem; margin-top: 1.1rem; }
+.project-list { position: sticky; top: 1.5rem; }
+.project-list h2 { display: flex; align-items: baseline; justify-content: space-between; margin: 0 0 1rem; padding-bottom: 0.9rem; border-bottom: 1px solid var(--line); }
+.manage-empty { max-width: 32ch; color: var(--muted); font-size: 0.88rem; line-height: 1.7; }
+.project-row { display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 1.1rem 0; border-bottom: 1px solid var(--line); }
+.project-row h3 { margin: 0 0 0.3rem; font-size: 0.98rem; font-weight: 600; }
+.project-row p { margin: 0; color: var(--muted); font-size: 0.74rem; }
+.row-actions { margin: 0; }
+
+@media (max-width: 800px) {
+  .manage-columns { grid-template-columns: 1fr; }
+  .project-list { position: static; }
+  .manage-title { padding-top: 3.5rem; }
+}
+
+@media (max-width: 520px) {
+  .manage-shell { padding-inline: 1rem; }
+  .manage-top { min-height: 68px; }
+  .manage-top > div { align-items: flex-start; flex-direction: column; gap: 0; }
+  .manage-top .eyebrow { display: none; }
+  .manage-title { align-items: start; flex-direction: column; gap: 0.7rem; padding: 3rem 0 1.5rem; }
+  .form-fields { grid-template-columns: 1fr; }
+  .project-row { align-items: start; flex-direction: column; }
+}
