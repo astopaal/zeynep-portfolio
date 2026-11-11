@@ -112,7 +112,7 @@ function App() {
             {projects.map((project, index) => {
               const fileUrl = project.media_path ? supabase.storage.from('portfolio-media').getPublicUrl(project.media_path).data.publicUrl : null
               const coverUrl = project.cover_path ? supabase.storage.from('portfolio-media').getPublicUrl(project.cover_path).data.publicUrl : null
-              const href = project.category === 'Web tasarımı' ? `/project/${project.id}` : project.external_url || fileUrl
+              const href = `/project/${project.id}`
               const Visual = href ? 'a' : 'div'
               return <article className="live-project" key={project.id}>
                 <Visual className="live-project-visual" href={href || undefined} target={href?.startsWith('http') ? '_blank' : undefined} rel={href?.startsWith('http') ? 'noreferrer' : undefined} aria-label={href ? `${project.title} projesini incele` : undefined}>

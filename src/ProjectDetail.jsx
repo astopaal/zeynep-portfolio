@@ -40,7 +40,8 @@ export default function ProjectDetail({ projectId }) {
   const mediaUrl = project.media_path ? supabase.storage.from('portfolio-media').getPublicUrl(project.media_path).data.publicUrl : null
   const slides = [
     ...(coverUrl ? [{ id: 'cover', url: coverUrl, label: 'Kapak görseli' }] : []),
-    ...gallery.map((item, index) => ({ id: item.id, url: supabase.storage.from('portfolio-media').getPublicUrl(item.file_path).data.publicUrl, label: `Ekran görüntüsü ${index + 1}` })),
+    ...(mediaUrl && project.media_kind === 'image' ? [{ id: 'main-image', url: mediaUrl, label: 'Proje görseli' }] : []),
+    ...gallery.map((item, index) => ({ id: item.id, url: supabase.storage.from('portfolio-media').getPublicUrl(item.file_path).data.publicUrl, label: `Galeri fotoğrafı ${index + 1}` })),
   ]
   const goToImage = (index) => setActiveImage((index + slides.length) % slides.length)
 

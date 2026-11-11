@@ -256,10 +256,8 @@ export default function Manage() {
           </div>
           <label htmlFor="project-file">Proje dosyası <span>İsteğe bağlı · görsel, video veya PDF</span></label>
           <div className="asset-upload"><input id="project-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf" onChange={(event) => setFile(event.target.files?.[0] || null)} /><p className="field-help">{file?.name || 'Ek dosya seçilmedi'}</p></div>
-          {form.category === 'Web tasarımı' && <>
-            <label htmlFor="project-gallery">Proje ekran görüntüleri <span>Birden fazla görsel seçebilirsin</span></label>
-            <div className="asset-upload"><input id="project-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setGalleryFiles(Array.from(event.target.files || []))} /><p className="field-help">{galleryFiles.length ? `${galleryFiles.length} görsel seçildi: ${galleryFiles.map((item) => item.name).join(', ')}` : 'PNG, JPG veya WebP · Bir seferde birden fazla dosya seçebilirsin.'}</p></div>
-          </>}
+          <label htmlFor="project-gallery">Galeri fotoğrafları <span>İsteğe bağlı · birden fazla görsel seçebilirsin</span></label>
+          <div className="asset-upload"><input id="project-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setGalleryFiles(Array.from(event.target.files || []))} /><p className="field-help">{galleryFiles.length ? `${galleryFiles.length} fotoğraf seçildi: ${galleryFiles.map((item) => item.name).join(', ')}` : 'Tüm proje türlerinde galeri oluşturabilirsin. PNG, JPG veya WebP seç.'}</p></div>
           <label htmlFor="project-url">Dış bağlantı <span>(web sitesi veya Instagram)</span></label><input id="project-url" type="url" placeholder="https://" value={form.external_url} onChange={(event) => setForm({ ...form, external_url: event.target.value })} />
           </div>
           </>}

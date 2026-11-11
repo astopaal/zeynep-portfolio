@@ -1,7 +1,7 @@
 # Supabase kurulumu
 
 1. İlk kurulumda Supabase SQL Editor'da `schema.sql` dosyasını çalıştır. Mevcut projeyi güncelliyorsan `migrations/add-cover-path.sql` dosyasını çalıştır.
-2. Proje detay sayfası ve galeri için `migrations/project-gallery.sql` dosyasını da çalıştır.
+2. Her proje türünde galeri ve proje detay sayfası için `migrations/project-gallery.sql` dosyasını da çalıştır.
 3. Supabase Authentication > Users bölümünden yönetici için bir kullanıcı oluştur. Parolayı sadece Supabase'e gir.
 4. SQL Editor'da şu sorguyla kullanıcının UUID değerini bul:
 
