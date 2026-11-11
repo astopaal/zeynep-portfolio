@@ -39,7 +39,6 @@ function App() {
   const [projects, setProjects] = useState([])
   const [projectState, setProjectState] = useState('loading')
   const [loadingProgress, setLoadingProgress] = useState(0)
-  const [loadingStage, setLoadingStage] = useState('İşler hazırlanıyor')
   const [showSplash, setShowSplash] = useState(true)
   const [splashLeaving, setSplashLeaving] = useState(false)
 
@@ -53,13 +52,12 @@ function App() {
   useEffect(() => {
     if (window.location.pathname !== '/') return
     let active = true
-    const splashMinimum = new Promise((resolve) => window.setTimeout(resolve, 520))
+    const splashMinimum = new Promise((resolve) => window.setTimeout(resolve, 1000))
 
     async function preparePortfolio() {
       if (!supabase) {
         await splashMinimum
         if (active) {
-          setLoadingStage('Portfolyo hazır')
           setLoadingProgress(100)
           setProjectState('empty')
         }
@@ -71,7 +69,6 @@ function App() {
       if (error) {
         await splashMinimum
         if (active) {
-          setLoadingStage('Portfolyo açılamadı')
           setLoadingProgress(100)
           setProjectState('error')
         }
@@ -81,7 +78,6 @@ function App() {
       const rows = data || []
       setProjects(rows)
       const covers = rows.filter((project) => project.cover_path).map((project) => supabase.storage.from('portfolio-media').getPublicUrl(project.cover_path).data.publicUrl)
-      setLoadingStage(covers.length ? 'Kapak görselleri yükleniyor' : 'Portfolyo hazırlanıyor')
 
       if (covers.length) {
         let loadedCount = 0
@@ -107,7 +103,6 @@ function App() {
 
       await splashMinimum
       if (active) {
-        setLoadingStage('Portfolyo hazır')
         setProjectState(rows.length ? 'ready' : 'empty')
       }
     }
@@ -122,10 +117,8 @@ function App() {
 
   return (
     <>
-      {showSplash && <div className={`home-splash ${splashLeaving ? 'is-leaving' : ''}`} role="status" aria-live="polite" aria-label={`Portfolyo hazırlanıyor, yüzde ${loadingProgress}`}>
-        <div className="splash-brand"><span className="splash-wordmark">ZY<span>.</span></span><span className="splash-caption">Zeynep Yılmaz <i /> Portfolyo</span></div>
-        <div className="splash-center"><p className="splash-kicker">ORDU · GRAFİK TASARIM</p><h1>Birazdan<br /><em>buradayız.</em></h1><div className="splash-progress" role="progressbar" aria-label="Kapak görselleri yükleniyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow={loadingProgress}><span style={{ transform: `scaleX(${loadingProgress / 100})` }} /></div><div className="splash-status"><span>{loadingStage}</span><span>{String(loadingProgress).padStart(2, '0')}%</span></div></div>
-        <span className="splash-index">GÖRSEL İLETİŞİM <i /> 2026</span>
+      {showSplash && <div className={`home-splash ${splashLeaving ? 'is-leaving' : ''}`} role="status" aria-live="polite" aria-label="Portfolyo yükleniyor">
+        <div className="splash-content"><span className="splash-title">Yükleniyor</span><div className="splash-progress" role="progressbar" aria-label="Kapak görselleri yükleniyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow={loadingProgress}><span style={{ transform: `scaleX(${loadingProgress / 100})` }} /></div></div>
       </div>}
       <a className="skip-link" href="#icerik" inert={showSplash}>İçeriğe geç</a>
       <header className="site-header" inert={showSplash}>
