@@ -116,7 +116,7 @@ function App() {
               const Visual = href ? 'a' : 'div'
               return <article className="live-project" key={project.id}>
                 <Visual className="live-project-visual" href={href || undefined} target={href?.startsWith('http') ? '_blank' : undefined} rel={href?.startsWith('http') ? 'noreferrer' : undefined} aria-label={href ? `${project.title} projesini incele` : undefined}>
-                  {coverUrl ? <img className="live-project-cover" src={coverUrl} alt={`${project.title} kapak görseli`} width="900" height="620" loading={index < 2 ? 'eager' : 'lazy'} /> : <div className="live-project-art" aria-hidden="true" />}
+                  {coverUrl ? <img className="live-project-cover" src={coverUrl} alt={`${project.title} kapak görseli`} width="900" height="900" loading={index < 2 ? 'eager' : 'lazy'} onLoad={(event) => event.currentTarget.classList.toggle('is-portrait', event.currentTarget.naturalHeight > event.currentTarget.naturalWidth)} /> : <div className="live-project-art" aria-hidden="true" />}
                   <div className="live-project-overlay"><p>{project.category}</p><h3>{project.title}</h3>{href && <span className="project-open-label">İncele <span aria-hidden="true">↗</span></span>}</div>
                 </Visual>
                 {project.description && <p className="live-project-description">{project.description}</p>}

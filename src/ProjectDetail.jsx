@@ -52,7 +52,7 @@ export default function ProjectDetail({ projectId }) {
       <section className="detail-gallery" aria-label="Proje görsel galerisi">
         {slides.length ? <>
           <div className="gallery-stage" aria-live="polite">
-            <img key={slides[activeImage].id} src={slides[activeImage].url} alt={`${project.title} · ${slides[activeImage].label}`} width="1440" height="960" fetchPriority={activeImage === 0 ? 'high' : 'auto'} />
+            <img key={slides[activeImage].id} src={slides[activeImage].url} alt={`${project.title} · ${slides[activeImage].label}`} width="1200" height="1200" fetchPriority={activeImage === 0 ? 'high' : 'auto'} />
             {slides.length > 1 && <><button className="gallery-control gallery-prev" type="button" aria-label="Önceki görsel" onClick={() => goToImage(activeImage - 1)}>‹</button><button className="gallery-control gallery-next" type="button" aria-label="Sonraki görsel" onClick={() => goToImage(activeImage + 1)}>›</button><span className="gallery-count">{String(activeImage + 1).padStart(2, '0')} / {String(slides.length).padStart(2, '0')}</span></>}
           </div>
           {slides.length > 1 && <div className="gallery-thumbnails" role="group" aria-label="Görsel seçimi">{slides.map((slide, index) => <button className={`gallery-thumb ${activeImage === index ? 'is-active' : ''}`} key={slide.id} type="button" aria-label={`${index + 1}. görseli göster`} aria-pressed={activeImage === index} onClick={() => goToImage(index)}><img src={slide.url} alt="" width="160" height="110" loading="lazy" /></button>)}</div>}

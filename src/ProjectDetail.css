@@ -8,8 +8,8 @@
 .detail-visit, .detail-file-link { min-height: 48px; display: inline-flex; align-items: center; gap: 0.65rem; padding: 0 1rem; color: white; background: var(--lilac-strong); font-size: 0.83rem; font-weight: 600; }
 .detail-visit:hover, .detail-file-link:hover { background: var(--ink); }
 .detail-gallery { max-width: 1600px; margin-inline: auto; padding: clamp(2.5rem, 5vw, 5rem) clamp(1.25rem, 10vw, 11rem) clamp(4rem, 8vw, 7rem); }
-.gallery-stage { position: relative; min-height: 300px; height: min(70vw, 760px); display: grid; place-items: center; overflow: hidden; background: var(--lilac-wash); }
-.gallery-stage > img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.gallery-stage { position: relative; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; background: var(--lilac-wash); }
+.gallery-stage > img { display: block; width: 100%; height: 100%; padding: clamp(0.75rem, 4vw, 2.5rem); object-fit: contain; }
 .gallery-control { position: absolute; top: 50%; width: 48px; height: 48px; display: grid; place-items: center; transform: translateY(-50%); border: 0; color: white; background: rgb(37 34 43 / 76%); font: inherit; font-size: 2rem; line-height: 1; cursor: pointer; }
 .gallery-control:hover { background: var(--lilac-strong); }
 .gallery-control:focus-visible, .gallery-thumb:focus-visible { outline: 3px solid var(--lilac-strong); outline-offset: 3px; }
@@ -32,7 +32,7 @@
 @media (max-width: 760px) {
   .detail-intro { grid-template-columns: 1fr; align-items: start; gap: 1.4rem; }
   .detail-summary { max-width: 48ch; }
-  .gallery-stage { height: 68vw; }
+  .gallery-stage { aspect-ratio: 1; }
 }
 
 @media (max-width: 620px) {
@@ -40,7 +40,7 @@
   .detail-intro { padding: 4rem 1.25rem 2.5rem; }
   .detail-intro h1 { font-size: clamp(3.5rem, 16vw, 5.5rem); }
   .detail-gallery { padding: 1.5rem 1.25rem 4rem; }
-  .gallery-stage { min-height: 260px; height: 74vw; }
+  .gallery-stage { aspect-ratio: 1; }
   .gallery-control { width: 42px; height: 42px; }
   .gallery-prev { left: 0.6rem; }
   .gallery-next { right: 0.6rem; }

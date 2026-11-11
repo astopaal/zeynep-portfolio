@@ -102,9 +102,10 @@
 .work-note { margin: 4rem 0 0; color: var(--muted); font-size: 0.8rem; text-align: center; }
 .live-project-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: clamp(1.5rem, 4vw, 3.5rem) 1.25rem; }
 .live-project { min-width: 0; }
-.live-project-visual { position: relative; min-height: 280px; aspect-ratio: 1.35; display: block; overflow: hidden; background: var(--lilac-wash); color: white; text-decoration: none; }
+.live-project-visual { position: relative; min-height: 280px; aspect-ratio: 1; display: block; overflow: hidden; background: var(--lilac-wash); color: white; text-decoration: none; }
 .live-project-visual[href] { cursor: pointer; }
 .live-project-cover { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: filter 220ms ease, transform 220ms ease; }
+.live-project-cover.is-portrait { padding: clamp(0.8rem, 3vw, 2rem); object-fit: contain; background: #eee8f6; }
 .live-project-art { position: absolute; inset: 0; background: linear-gradient(135deg, #e8def4, #c7b4e1); }
 .live-project-overlay { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: start; justify-content: end; padding: 1.4rem; color: white; background: linear-gradient(180deg, transparent 22%, rgb(28 19 37 / 64%) 100%); }
 .live-project-overlay p { margin: 0 0 0.55rem; font-size: 0.72rem; }
