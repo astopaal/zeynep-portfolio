@@ -8,8 +8,19 @@
 .detail-visit, .detail-file-link { min-height: 48px; display: inline-flex; align-items: center; gap: 0.65rem; padding: 0 1rem; color: white; background: var(--lilac-strong); font-size: 0.83rem; font-weight: 600; }
 .detail-visit:hover, .detail-file-link:hover { background: var(--ink); }
 .detail-gallery { max-width: 1600px; margin-inline: auto; padding: clamp(2.5rem, 5vw, 5rem) clamp(1.25rem, 10vw, 11rem) clamp(4rem, 8vw, 7rem); }
+.brand-work { padding: clamp(2rem, 4vw, 3rem) 0; border-top: 1px solid var(--line); }
+.brand-work-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 1rem; margin-bottom: 1.4rem; }
+.brand-work-heading .eyebrow { margin: 0; }
+.brand-work-heading h2 { margin: 0; color: var(--lilac-strong); font-family: Georgia, 'Times New Roman', serif; font-size: clamp(2rem, 4vw, 3.4rem); font-weight: 400; }
+.brand-gallery { max-width: 1050px; }
+.brand-documents { max-width: 1050px; margin-top: 1.5rem; }
+.brand-documents .eyebrow { margin-bottom: 0.5rem; }
+.brand-pdf { min-height: 56px; display: flex; align-items: center; justify-content: space-between; gap: 1rem; padding: 0.75rem 1rem; border-top: 1px solid var(--line); color: var(--ink); font-size: 0.85rem; }
+.brand-pdf:last-child { border-bottom: 1px solid var(--line); }
+.brand-pdf span:last-child { color: var(--lilac-strong); font-weight: 600; }
+.brand-pdf:hover span:last-child { color: var(--ink); }
 .gallery-stage { position: relative; aspect-ratio: 1; display: grid; place-items: center; overflow: hidden; background: var(--lilac-wash); }
-.gallery-stage > img { display: block; width: 100%; height: 100%; padding: clamp(0.75rem, 4vw, 2.5rem); object-fit: contain; }
+.gallery-stage > img { box-sizing: border-box; display: block; width: 100%; height: 100%; padding: clamp(0.75rem, 4vw, 2.5rem); border: 1px solid var(--line); background: #fff; object-fit: contain; }
 .gallery-control { position: absolute; top: 50%; width: 48px; height: 48px; display: grid; place-items: center; transform: translateY(-50%); border: 0; color: white; background: rgb(37 34 43 / 76%); font: inherit; font-size: 2rem; line-height: 1; cursor: pointer; }
 .gallery-control:hover { background: var(--lilac-strong); }
 .gallery-control:focus-visible, .gallery-thumb:focus-visible { outline: 3px solid var(--lilac-strong); outline-offset: 3px; }

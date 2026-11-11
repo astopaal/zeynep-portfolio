@@ -4,14 +4,15 @@ import './Manage.css'
 
 const blankProject = { title: '', category: 'Basılı işler', description: '', media_kind: 'image', external_url: '', published: true }
 const categories = ['Basılı işler', 'Web tasarımı', 'Sosyal medya', 'Video / motion']
+const newMediaBatch = () => ({ id: crypto.randomUUID(), brandName: '', files: [] })
 
 export default function Manage() {
   const [session, setSession] = useState(null)
   const [authorized, setAuthorized] = useState(false)
   const [projects, setProjects] = useState([])
   const [form, setForm] = useState(blankProject)
-  const [file, setFile] = useState(null)
-  const [galleryFiles, setGalleryFiles] = useState([])
+  const [mediaBatches, setMediaBatches] = useState(() => [newMediaBatch()])
+  const [existingMedia, setExistingMedia] = useState([])
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -74,12 +75,13 @@ export default function Manage() {
     if (error) setNotice('Giriş başarısız. E-posta ve parolayı kontrol et.')
   }
 
-  function editProject(project) {
+  async function editProject(project) {
     setStep(1)
     setEditingId(project.id)
     setForm({ title: project.title, category: project.category, description: project.description || '', media_kind: project.media_kind, external_url: project.external_url || '', published: project.published })
-    setFile(null)
-    setGalleryFiles([])
+    setMediaBatches([newMediaBatch()])
+    const { data } = await supabase.from('portfolio_project_media').select('*').eq('project_id', project.id).order('sort_order')
+    setExistingMedia(data || [])
     setCoverFile(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -119,17 +121,6 @@ export default function Manage() {
       }
       coverPath = path
     }
-    if (file) {
-      const safeName = file.name.normalize('NFKD').replace(/[^a-zA-Z0-9.-]+/g, '-').toLowerCase()
-      const path = `${crypto.randomUUID()}-${safeName}`
-      const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(path, file, { upsert: false })
-      if (uploadError) {
-        setBusy(false)
-        setNotice(uploadError.message)
-        return
-      }
-      mediaPath = path
-    }
     if (!coverPath) {
       setBusy(false)
       setNotice('Her proje için bir kapak görseli eklemelisin.')
@@ -144,13 +135,15 @@ export default function Manage() {
       setBusy(false)
       return setNotice(error.message)
     }
-    if (galleryFiles.length) {
-      const uploaded = await Promise.all(galleryFiles.map(async (galleryFile, index) => {
-        const safeName = galleryFile.name.normalize('NFKD').replace(/[^a-zA-Z0-9.-]+/g, '-').toLowerCase()
+    const mediaEntries = mediaBatches.flatMap((batch) => batch.files.map((batchFile) => ({ batch, batchFile })))
+    if (mediaEntries.length) {
+      const uploaded = await Promise.all(mediaEntries.map(async ({ batch, batchFile }, index) => {
+        const safeName = batchFile.name.normalize('NFKD').replace(/[^a-zA-Z0-9.-]+/g, '-').toLowerCase()
         const path = `projects/${savedProject.id}/${crypto.randomUUID()}-${safeName}`
-        const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(path, galleryFile, { upsert: false })
+        const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(path, batchFile, { upsert: false })
         if (uploadError) return { error: uploadError }
-        const { error: insertError } = await supabase.from('portfolio_project_media').insert({ project_id: savedProject.id, file_path: path, sort_order: index })
+        const mediaKind = batchFile.type === 'application/pdf' ? 'pdf' : batchFile.type.startsWith('video/') ? 'video' : 'image'
+        const { error: insertError } = await supabase.from('portfolio_project_media').insert({ project_id: savedProject.id, file_path: path, sort_order: existingMedia.length + index, brand_name: batch.brandName.trim(), media_kind: mediaKind, title: batchFile.name.replace(/\.[^.]+$/, '') })
         return { error: insertError }
       }))
       const galleryError = uploaded.find((result) => result.error)?.error
@@ -161,8 +154,8 @@ export default function Manage() {
     }
     setBusy(false)
     setForm(blankProject)
-    setFile(null)
-    setGalleryFiles([])
+    setMediaBatches([newMediaBatch()])
+    setExistingMedia([])
     setCoverFile(null)
     setEditingId(null)
     setNotice('Proje kaydedildi.')
@@ -181,20 +174,32 @@ export default function Manage() {
       setNotice('Devam etmek için bir kapak görseli ekle.')
       return
     }
+    if (step === 2 && mediaBatches.some((batch) => batch.files.length && !batch.brandName.trim())) {
+      setNotice('Dosyaları eklediğin her gruba marka veya iş adı yaz.')
+      return
+    }
     setNotice('')
     setStep((current) => Math.min(3, current + 1))
   }
 
   async function removeProject(project) {
     if (!window.confirm(`“${project.title}” projesi silinsin mi?`)) return
+    const { data: gallery } = await supabase.from('portfolio_project_media').select('file_path').eq('project_id', project.id)
     const { error } = await supabase.from('portfolio_projects').delete().eq('id', project.id)
     if (error) return setNotice(error.message)
     const filesToRemove = [project.media_path, project.cover_path].filter(Boolean)
-    const { data: gallery } = await supabase.from('portfolio_project_media').select('file_path').eq('project_id', project.id)
     const allFiles = [...filesToRemove, ...(gallery || []).map((item) => item.file_path)]
     if (allFiles.length) await supabase.storage.from('portfolio-media').remove(allFiles)
     setProjects((current) => current.filter((item) => item.id !== project.id))
     setNotice('Proje silindi.')
+  }
+
+  async function removeProjectMedia(item) {
+    const { error } = await supabase.from('portfolio_project_media').delete().eq('id', item.id)
+    if (error) return setNotice(error.message)
+    await supabase.storage.from('portfolio-media').remove([item.file_path])
+    setExistingMedia((current) => current.filter((media) => media.id !== item.id))
+    setNotice('Dosya galeriden kaldırıldı.')
   }
 
   async function signOut() {
@@ -254,14 +259,13 @@ export default function Manage() {
             {!coverPreview && editingId && projects.find((project) => project.id === editingId)?.cover_path && <img className="cover-preview" src={supabase.storage.from('portfolio-media').getPublicUrl(projects.find((project) => project.id === editingId).cover_path).data.publicUrl} alt="Mevcut kapak görseli" />}
             <p className="field-help" id="cover-help">JPG, PNG, WebP veya GIF. Dosyalar en fazla 50 MB olabilir.</p>
           </div>
-          <label htmlFor="project-file">Proje dosyası <span>İsteğe bağlı · görsel, video veya PDF</span></label>
-          <div className="asset-upload"><input id="project-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf" onChange={(event) => setFile(event.target.files?.[0] || null)} /><p className="field-help">{file?.name || 'Ek dosya seçilmedi'}</p></div>
-          <label htmlFor="project-gallery">Galeri fotoğrafları <span>İsteğe bağlı · birden fazla görsel seçebilirsin</span></label>
-          <div className="asset-upload"><input id="project-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setGalleryFiles(Array.from(event.target.files || []))} /><p className="field-help">{galleryFiles.length ? `${galleryFiles.length} fotoğraf seçildi: ${galleryFiles.map((item) => item.name).join(', ')}` : 'Tüm proje türlerinde galeri oluşturabilirsin. PNG, JPG veya WebP seç.'}</p></div>
+          <div className="media-batches-heading"><div><label>Marka ve dosyalar</label><p className="field-help">Her marka için bir grup oluştur. Fotoğraf ve PDF’leri aynı gruba topluca ekleyebilirsin.</p></div><button className="manage-secondary" type="button" onClick={() => setMediaBatches((current) => [...current, newMediaBatch()])}>Marka grubu ekle</button></div>
+          {mediaBatches.map((batch, index) => <fieldset className="media-batch" key={batch.id}><legend>Grup {index + 1}</legend><label htmlFor={`brand-name-${batch.id}`}>Marka / iş adı</label><input id={`brand-name-${batch.id}`} required={batch.files.length > 0} value={batch.brandName} placeholder="Ör. Marka adı" onChange={(event) => setMediaBatches((current) => current.map((item) => item.id === batch.id ? { ...item, brandName: event.target.value } : item))} /><label htmlFor={`media-files-${batch.id}`}>Fotoğraf ve dosyalar</label><input id={`media-files-${batch.id}`} type="file" accept="image/jpeg,image/png,image/webp,image/gif,application/pdf,video/mp4,video/webm" multiple onChange={(event) => setMediaBatches((current) => current.map((item) => item.id === batch.id ? { ...item, files: Array.from(event.target.files || []) } : item))} /><p className="field-help">{batch.files.length ? `${batch.files.length} dosya: ${batch.files.map((item) => item.name).join(', ')}` : 'JPG, PNG, WebP, PDF veya MP4 seç. Birden fazla dosya seçebilirsin.'}</p>{mediaBatches.length > 1 && <button className="file-remove" type="button" onClick={() => setMediaBatches((current) => current.filter((item) => item.id !== batch.id))}>Bu grubu kaldır</button>}</fieldset>)}
+          {existingMedia.length > 0 && <div className="existing-media"><p className="eyebrow">Mevcut proje dosyaları</p>{existingMedia.map((item) => <div className="existing-media-row" key={item.id}><span>{item.brand_name} · {item.title || item.media_kind.toUpperCase()}</span><button className="file-remove" type="button" onClick={() => removeProjectMedia(item)}>Kaldır</button></div>)}</div>}
           <label htmlFor="project-url">Dış bağlantı <span>(web sitesi veya Instagram)</span></label><input id="project-url" type="url" placeholder="https://" value={form.external_url} onChange={(event) => setForm({ ...form, external_url: event.target.value })} />
           </div>
           </>}
-          {step === 3 && <section className="project-review"><p className="form-step">SON ADIM</p><h3>Yayın öncesi kontrol</h3><p><strong>Proje:</strong> {form.title || 'İsimsiz proje'}</p><p><strong>Mecra:</strong> {form.category}</p><p><strong>Kapak:</strong> {coverFile?.name || (editingId ? 'Mevcut görsel' : 'Eksik')}</p><label className="publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} /> Portfolyoda yayımla</label></section>}
+          {step === 3 && <section className="project-review"><p className="form-step">SON ADIM</p><h3>Yayın öncesi kontrol</h3><p><strong>Proje:</strong> {form.title || 'İsimsiz proje'}</p><p><strong>Mecra:</strong> {form.category}</p><p><strong>Kapak:</strong> {coverFile?.name || (editingId ? 'Mevcut görsel' : 'Eksik')}</p><p><strong>Yeni marka grupları:</strong> {mediaBatches.filter((batch) => batch.files.length).map((batch) => `${batch.brandName} (${batch.files.length})`).join(', ') || 'Dosya eklenmedi'}</p><label className="publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} /> Portfolyoda yayımla</label></section>}
           {notice && <p className="manage-notice" role="status">{notice}</p>}
           <div className="form-actions">{step > 1 && <button className="manage-secondary" type="button" onClick={() => { setNotice(''); setStep((current) => current - 1) }}>Geri</button>}{step < 3 ? <button className="manage-button" type="submit">Devam et</button> : <button className="manage-button" type="submit" disabled={busy}>{busy ? 'Kaydediliyor…' : editingId ? 'Değişiklikleri kaydet' : 'Projeyi kaydet'}</button>}</div>
         </form>
