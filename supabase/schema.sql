@@ -5,7 +5,7 @@ create table if not exists public.admin_users (
 create table if not exists public.portfolio_projects (
   id uuid primary key default gen_random_uuid(),
   title text not null,
-  category text not null check (category in ('Basılı işler', 'Web tasarımı', 'Sosyal medya', 'Video / motion')),
+  category text not null check (category in ('Grafik tasarım', 'Ambalaj', 'Sosyal medya', 'Marka kimliği', 'Web tasarımı', 'UI/UX tasarımı', 'Reklam tasarımı', 'Video / motion')),
   description text not null default '',
   cover_path text,
   media_path text,

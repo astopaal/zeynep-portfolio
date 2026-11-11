@@ -2,8 +2,8 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import './Manage.css'
 
-const blankProject = { title: '', category: 'Basılı işler', description: '', media_kind: 'image', external_url: '', published: true }
-const categories = ['Basılı işler', 'Web tasarımı', 'Sosyal medya', 'Video / motion']
+const blankProject = { title: '', category: 'Grafik tasarım', description: '', media_kind: 'image', external_url: '', published: true }
+const categories = ['Grafik tasarım', 'Ambalaj', 'Sosyal medya', 'Marka kimliği', 'Web tasarımı', 'UI/UX tasarımı', 'Reklam tasarımı', 'Video / motion']
 const newMediaBatch = () => ({ id: crypto.randomUUID(), brandName: '', files: [] })
 
 export default function Manage() {
@@ -237,7 +237,7 @@ export default function Manage() {
           {step === 1 && <>
           <div className="form-fields">
           <label htmlFor="project-title">Proje adı</label><input id="project-title" required maxLength="100" value={form.title} onChange={(event) => setForm({ ...form, title: event.target.value })} />
-          <label htmlFor="project-category">Mecra</label><select id="project-category" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}>{categories.map((category) => <option key={category}>{category}</option>)}</select>
+          <label htmlFor="project-category">Kategori</label><select id="project-category" value={form.category} onChange={(event) => setForm({ ...form, category: event.target.value })}>{categories.map((category) => <option key={category}>{category}</option>)}</select>
           <label htmlFor="project-description">Açıklama</label><textarea id="project-description" rows="4" maxLength="1000" value={form.description} onChange={(event) => setForm({ ...form, description: event.target.value })} />
           </div>
           </>}
@@ -265,7 +265,7 @@ export default function Manage() {
           <label htmlFor="project-url">Dış bağlantı <span>(web sitesi veya Instagram)</span></label><input id="project-url" type="url" placeholder="https://" value={form.external_url} onChange={(event) => setForm({ ...form, external_url: event.target.value })} />
           </div>
           </>}
-          {step === 3 && <section className="project-review"><p className="form-step">SON ADIM</p><h3>Yayın öncesi kontrol</h3><p><strong>Proje:</strong> {form.title || 'İsimsiz proje'}</p><p><strong>Mecra:</strong> {form.category}</p><p><strong>Kapak:</strong> {coverFile?.name || (editingId ? 'Mevcut görsel' : 'Eksik')}</p><p><strong>Yeni marka grupları:</strong> {mediaBatches.filter((batch) => batch.files.length).map((batch) => `${batch.brandName} (${batch.files.length})`).join(', ') || 'Dosya eklenmedi'}</p><label className="publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} /> Portfolyoda yayımla</label></section>}
+          {step === 3 && <section className="project-review"><p className="form-step">SON ADIM</p><h3>Yayın öncesi kontrol</h3><p><strong>Proje:</strong> {form.title || 'İsimsiz proje'}</p><p><strong>Kategori:</strong> {form.category}</p><p><strong>Kapak:</strong> {coverFile?.name || (editingId ? 'Mevcut görsel' : 'Eksik')}</p><p><strong>Yeni marka grupları:</strong> {mediaBatches.filter((batch) => batch.files.length).map((batch) => `${batch.brandName} (${batch.files.length})`).join(', ') || 'Dosya eklenmedi'}</p><label className="publish-check"><input type="checkbox" checked={form.published} onChange={(event) => setForm({ ...form, published: event.target.checked })} /> Portfolyoda yayımla</label></section>}
           {notice && <p className="manage-notice" role="status">{notice}</p>}
           <div className="form-actions">{step > 1 && <button className="manage-secondary" type="button" onClick={() => { setNotice(''); setStep((current) => current - 1) }}>Geri</button>}{step < 3 ? <button className="manage-button" type="submit">Devam et</button> : <button className="manage-button" type="submit" disabled={busy}>{busy ? 'Kaydediliyor…' : editingId ? 'Değişiklikleri kaydet' : 'Projeyi kaydet'}</button>}</div>
         </form>
