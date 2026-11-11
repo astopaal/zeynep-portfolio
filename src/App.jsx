@@ -70,7 +70,7 @@ function App() {
       <main id="icerik">
         <section className="hero" id="anasayfa" aria-labelledby="hero-title">
           <div className="hero-copy">
-            <p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Grafik tasarımcı · İstanbul</p>
+            <p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Grafik tasarımcı · Ordu</p>
             <h1 id="hero-title">Fikirleri<br /><span>görünür</span> kılarım.</h1>
             <div className="hero-bottom">
               <p>Ben Zeynep Yılmaz. Basılı ve dijital mecralar için karakteri olan görsel işler tasarlıyorum.</p>
