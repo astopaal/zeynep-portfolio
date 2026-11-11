@@ -38,21 +38,82 @@ const formats = [
 function App() {
   const [projects, setProjects] = useState([])
   const [projectState, setProjectState] = useState('loading')
+  const [loadingProgress, setLoadingProgress] = useState(0)
+  const [loadingStage, setLoadingStage] = useState('İşler hazırlanıyor')
+  const [showSplash, setShowSplash] = useState(true)
+  const [splashLeaving, setSplashLeaving] = useState(false)
+
+  useEffect(() => {
+    if (projectState === 'loading') return
+    setSplashLeaving(true)
+    const timeout = window.setTimeout(() => setShowSplash(false), 340)
+    return () => window.clearTimeout(timeout)
+  }, [projectState])
 
   useEffect(() => {
     if (window.location.pathname !== '/') return
-    if (!supabase) {
-      setProjectState('empty')
-      return
-    }
-    supabase.from('portfolio_projects').select('*').eq('published', true).order('sort_order').order('created_at', { ascending: false })
-      .then(({ data, error }) => {
-        if (error) setProjectState('error')
-        else {
-          setProjects(data || [])
-          setProjectState(data?.length ? 'ready' : 'empty')
+    let active = true
+    const splashMinimum = new Promise((resolve) => window.setTimeout(resolve, 520))
+
+    async function preparePortfolio() {
+      if (!supabase) {
+        await splashMinimum
+        if (active) {
+          setLoadingStage('Portfolyo hazır')
+          setLoadingProgress(100)
+          setProjectState('empty')
         }
-      })
+        return
+      }
+
+      const { data, error } = await supabase.from('portfolio_projects').select('*').eq('published', true).order('sort_order').order('created_at', { ascending: false })
+      if (!active) return
+      if (error) {
+        await splashMinimum
+        if (active) {
+          setLoadingStage('Portfolyo açılamadı')
+          setLoadingProgress(100)
+          setProjectState('error')
+        }
+        return
+      }
+
+      const rows = data || []
+      setProjects(rows)
+      const covers = rows.filter((project) => project.cover_path).map((project) => supabase.storage.from('portfolio-media').getPublicUrl(project.cover_path).data.publicUrl)
+      setLoadingStage(covers.length ? 'Kapak görselleri yükleniyor' : 'Portfolyo hazırlanıyor')
+
+      if (covers.length) {
+        let loadedCount = 0
+        await Promise.all(covers.map((url) => new Promise((resolve) => {
+          const image = new Image()
+          let settled = false
+          const finish = async (decodeImage) => {
+            if (settled) return
+            settled = true
+            if (decodeImage && image.decode) await image.decode().catch(() => {})
+            loadedCount += 1
+            if (active) setLoadingProgress(Math.round((loadedCount / covers.length) * 100))
+            resolve()
+          }
+          image.onload = () => finish(true)
+          image.onerror = () => finish(false)
+          image.src = url
+          if (image.complete) finish(image.naturalWidth > 0)
+        })))
+      } else {
+        setLoadingProgress(100)
+      }
+
+      await splashMinimum
+      if (active) {
+        setLoadingStage('Portfolyo hazır')
+        setProjectState(rows.length ? 'ready' : 'empty')
+      }
+    }
+
+    preparePortfolio()
+    return () => { active = false }
   }, [])
 
   if (window.location.pathname === '/manage') return <Manage />
@@ -61,8 +122,13 @@ function App() {
 
   return (
     <>
-      <a className="skip-link" href="#icerik">İçeriğe geç</a>
-      <header className="site-header">
+      {showSplash && <div className={`home-splash ${splashLeaving ? 'is-leaving' : ''}`} role="status" aria-live="polite" aria-label={`Portfolyo hazırlanıyor, yüzde ${loadingProgress}`}>
+        <div className="splash-brand"><span className="splash-wordmark">ZY<span>.</span></span><span className="splash-caption">Zeynep Yılmaz <i /> Portfolyo</span></div>
+        <div className="splash-center"><p className="splash-kicker">ORDU · GRAFİK TASARIM</p><h1>Birazdan<br /><em>buradayız.</em></h1><div className="splash-progress" role="progressbar" aria-label="Kapak görselleri yükleniyor" aria-valuemin="0" aria-valuemax="100" aria-valuenow={loadingProgress}><span style={{ transform: `scaleX(${loadingProgress / 100})` }} /></div><div className="splash-status"><span>{loadingStage}</span><span>{String(loadingProgress).padStart(2, '0')}%</span></div></div>
+        <span className="splash-index">GÖRSEL İLETİŞİM <i /> 2026</span>
+      </div>}
+      <a className="skip-link" href="#icerik" inert={showSplash}>İçeriğe geç</a>
+      <header className="site-header" inert={showSplash}>
         <a className="wordmark" href="#anasayfa" aria-label="Zeynep Yılmaz, ana sayfa">ZY<span>.</span></a>
         <nav className="main-nav" aria-label="Ana menü">
           <a href="#isler">İşler</a>
@@ -71,7 +137,7 @@ function App() {
         </nav>
       </header>
 
-      <main id="icerik">
+      <main id="icerik" inert={showSplash}>
         <section className="hero" id="anasayfa" aria-labelledby="hero-title">
           <div className="hero-copy">
             <p className="eyebrow"><span className="status-dot" aria-hidden="true" /> Grafik tasarımcı · Ordu</p>
@@ -98,7 +164,6 @@ function App() {
             </div>
             <p className="section-intro">Her mecra için ayrı düşünülmüş, birlikte aynı görsel dünyada duran tasarımlar.</p>
           </div>
-          {projectState === 'loading' && <p className="work-note" role="status">Portfolyo işleri yükleniyor…</p>}
           {projectState === 'error' && <p className="work-note" role="status">İşler şu anda yüklenemedi. Lütfen daha sonra tekrar bak.</p>}
           {projectState === 'empty' && <div className="format-grid">
             {formats.map((format) => (
@@ -146,7 +211,7 @@ function App() {
         </section>
       </main>
 
-      <footer className="site-footer"><a className="wordmark" href="#anasayfa">ZY<span>.</span></a><p>Zeynep Yılmaz · Grafik tasarımcı</p><span>© 2026</span></footer>
+      <footer className="site-footer" inert={showSplash}><a className="wordmark" href="#anasayfa">ZY<span>.</span></a><p>Zeynep Yılmaz · Grafik tasarımcı</p><span>© 2026</span></footer>
     </>
   )
 }
