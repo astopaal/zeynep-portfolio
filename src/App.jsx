@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react'
 import { supabase } from './lib/supabase'
 import './App.css'
 import Manage from './Manage.jsx'
+import ProjectDetail from './ProjectDetail.jsx'
 
 const formats = [
   {
@@ -39,6 +40,7 @@ function App() {
   const [projectState, setProjectState] = useState('loading')
 
   useEffect(() => {
+    if (window.location.pathname !== '/') return
     if (!supabase) {
       setProjectState('empty')
       return
@@ -54,6 +56,8 @@ function App() {
   }, [])
 
   if (window.location.pathname === '/manage') return <Manage />
+  const detailMatch = window.location.pathname.match(/^\/project\/([^/]+)\/?$/)
+  if (detailMatch) return <ProjectDetail projectId={detailMatch[1]} />
 
   return (
     <>
@@ -108,10 +112,10 @@ function App() {
             {projects.map((project, index) => {
               const fileUrl = project.media_path ? supabase.storage.from('portfolio-media').getPublicUrl(project.media_path).data.publicUrl : null
               const coverUrl = project.cover_path ? supabase.storage.from('portfolio-media').getPublicUrl(project.cover_path).data.publicUrl : null
-              const href = project.external_url || fileUrl
+              const href = project.category === 'Web tasarımı' ? `/project/${project.id}` : project.external_url || fileUrl
               const Visual = href ? 'a' : 'div'
               return <article className="live-project" key={project.id}>
-                <Visual className="live-project-visual" href={href || undefined} target={href ? '_blank' : undefined} rel={href ? 'noreferrer' : undefined} aria-label={href ? `${project.title} projesini incele` : undefined}>
+                <Visual className="live-project-visual" href={href || undefined} target={href?.startsWith('http') ? '_blank' : undefined} rel={href?.startsWith('http') ? 'noreferrer' : undefined} aria-label={href ? `${project.title} projesini incele` : undefined}>
                   {coverUrl ? <img className="live-project-cover" src={coverUrl} alt={`${project.title} kapak görseli`} width="900" height="620" loading={index < 2 ? 'eager' : 'lazy'} /> : <div className="live-project-art" aria-hidden="true" />}
                   <div className="live-project-overlay"><p>{project.category}</p><h3>{project.title}</h3>{href && <span className="project-open-label">İncele <span aria-hidden="true">↗</span></span>}</div>
                 </Visual>

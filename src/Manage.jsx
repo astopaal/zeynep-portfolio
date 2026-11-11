@@ -11,6 +11,7 @@ export default function Manage() {
   const [projects, setProjects] = useState([])
   const [form, setForm] = useState(blankProject)
   const [file, setFile] = useState(null)
+  const [galleryFiles, setGalleryFiles] = useState([])
   const [coverFile, setCoverFile] = useState(null)
   const [coverPreview, setCoverPreview] = useState('')
   const [editingId, setEditingId] = useState(null)
@@ -78,6 +79,7 @@ export default function Manage() {
     setEditingId(project.id)
     setForm({ title: project.title, category: project.category, description: project.description || '', media_kind: project.media_kind, external_url: project.external_url || '', published: project.published })
     setFile(null)
+    setGalleryFiles([])
     setCoverFile(null)
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
@@ -135,13 +137,32 @@ export default function Manage() {
     }
     const values = { ...form, media_path: mediaPath, cover_path: coverPath, sort_order: currentProject?.sort_order ?? projects.length }
     const query = editingId
-      ? supabase.from('portfolio_projects').update(values).eq('id', editingId)
-      : supabase.from('portfolio_projects').insert(values)
-    const { error } = await query
+      ? supabase.from('portfolio_projects').update(values).eq('id', editingId).select().single()
+      : supabase.from('portfolio_projects').insert(values).select().single()
+    const { data: savedProject, error } = await query
+    if (error) {
+      setBusy(false)
+      return setNotice(error.message)
+    }
+    if (galleryFiles.length) {
+      const uploaded = await Promise.all(galleryFiles.map(async (galleryFile, index) => {
+        const safeName = galleryFile.name.normalize('NFKD').replace(/[^a-zA-Z0-9.-]+/g, '-').toLowerCase()
+        const path = `projects/${savedProject.id}/${crypto.randomUUID()}-${safeName}`
+        const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(path, galleryFile, { upsert: false })
+        if (uploadError) return { error: uploadError }
+        const { error: insertError } = await supabase.from('portfolio_project_media').insert({ project_id: savedProject.id, file_path: path, sort_order: index })
+        return { error: insertError }
+      }))
+      const galleryError = uploaded.find((result) => result.error)?.error
+      if (galleryError) {
+        setBusy(false)
+        return setNotice(`Proje kaydedildi ancak galeri görsellerinin bir kısmı eklenemedi: ${galleryError.message}`)
+      }
+    }
     setBusy(false)
-    if (error) return setNotice(error.message)
     setForm(blankProject)
     setFile(null)
+    setGalleryFiles([])
     setCoverFile(null)
     setEditingId(null)
     setNotice('Proje kaydedildi.')
@@ -169,7 +190,9 @@ export default function Manage() {
     const { error } = await supabase.from('portfolio_projects').delete().eq('id', project.id)
     if (error) return setNotice(error.message)
     const filesToRemove = [project.media_path, project.cover_path].filter(Boolean)
-    if (filesToRemove.length) await supabase.storage.from('portfolio-media').remove(filesToRemove)
+    const { data: gallery } = await supabase.from('portfolio_project_media').select('file_path').eq('project_id', project.id)
+    const allFiles = [...filesToRemove, ...(gallery || []).map((item) => item.file_path)]
+    if (allFiles.length) await supabase.storage.from('portfolio-media').remove(allFiles)
     setProjects((current) => current.filter((item) => item.id !== project.id))
     setNotice('Proje silindi.')
   }
@@ -233,6 +256,10 @@ export default function Manage() {
           </div>
           <label htmlFor="project-file">Proje dosyası <span>İsteğe bağlı · görsel, video veya PDF</span></label>
           <div className="asset-upload"><input id="project-file" type="file" accept="image/jpeg,image/png,image/webp,image/gif,video/mp4,video/webm,application/pdf" onChange={(event) => setFile(event.target.files?.[0] || null)} /><p className="field-help">{file?.name || 'Ek dosya seçilmedi'}</p></div>
+          {form.category === 'Web tasarımı' && <>
+            <label htmlFor="project-gallery">Proje ekran görüntüleri <span>Birden fazla görsel seçebilirsin</span></label>
+            <div className="asset-upload"><input id="project-gallery" type="file" accept="image/jpeg,image/png,image/webp,image/gif" multiple onChange={(event) => setGalleryFiles(Array.from(event.target.files || []))} /><p className="field-help">{galleryFiles.length ? `${galleryFiles.length} görsel seçildi: ${galleryFiles.map((item) => item.name).join(', ')}` : 'PNG, JPG veya WebP · Bir seferde birden fazla dosya seçebilirsin.'}</p></div>
+          </>}
           <label htmlFor="project-url">Dış bağlantı <span>(web sitesi veya Instagram)</span></label><input id="project-url" type="url" placeholder="https://" value={form.external_url} onChange={(event) => setForm({ ...form, external_url: event.target.value })} />
           </div>
           </>}
